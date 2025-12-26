@@ -6,13 +6,13 @@
 void drawHorse();
 void drawStats();
 void drawMenu();
+void drawMainScreen();
 void updateNeeds();
 void checkSensors();
 void feedHorse();
-void playWithHorse();
-void cleanHorse();
 void checkSleep();
 void updateMood();
+void updateBrightness();
 void onButtonAPressed();
 void onButtonBPressed();
 
@@ -33,46 +33,74 @@ uint8_t energy = 80;        // Energia
 
 // Nastrój konika (0=smutny, 1=normalny, 2=szczęśliwy)
 uint8_t mood = 1;
+uint8_t prev_mood = 1;      // Poprzedni nastrój dla wykrycia zmiany
 
 // ============================================
 // ZMIENNE SENSORÓW
 // ============================================
 float light_level = 0;      // Natężenie światła
+float prev_light = 0;       // Poprzednia wartość światła
 float temperature = 0;      // Temperatura
 float humidity = 0;         // Wilgotność
-float accel_x = 0;          // Akcelerometr X
-float accel_y = 0;          // Akcelerometr Y
-float accel_z = 0;          // Akcelerometr Z
 float accel_magnitude = 0;  // Siła ruchu
 
 // ============================================
 // ZMIENNE GRY
 // ============================================
 bool is_sleeping = false;   // Czy konik śpi
-uint16_t step_count = 0;    // Licznik kroków
+bool prev_sleeping = false; // Poprzedni stan snu
+uint32_t step_count = 0;    // Licznik kroków
 uint32_t last_update = 0;   // Ostatnia aktualizacja potrzeb
 uint32_t last_step = 0;     // Ostatni krok
+uint32_t last_sensor_check = 0; // Ostatnie sprawdzenie sensorów
 bool menu_active = false;   // Czy menu jest aktywne
-uint8_t menu_selection = 0; // Wybrana opcja menu (0=Nakarm, 1=Stats, 2=Wyjdź)
+uint8_t menu_selection = 0; // Wybrana opcja menu
+bool needs_redraw = true;   // Czy ekran wymaga odświeżenia
+uint32_t last_action_time = 0; // Czas ostatniej akcji (do wygaszania komunikatów)
+String action_message = ""; // Komunikat akcji
+
+// Menu settings
+uint8_t screen_brightness = 100; // Jasność ekranu (0-100)
+bool auto_brightness = true;     // Auto-jasność włączona
 
 // Progi akcelerometru
 const float STEP_THRESHOLD = 1.5;      // Próg wykrycia kroku
 const float SHAKE_THRESHOLD = 2.5;     // Próg wykrycia mycia/potrząsania
 const float PET_THRESHOLD = 0.3;       // Próg wykrycia głaskania
 
+// Czasy aktualizacji (w milisekundach)
+const uint32_t NEEDS_UPDATE_INTERVAL = 600000;  // 10 minut = 600000 ms
+const uint32_t SENSOR_CHECK_INTERVAL = 1000;    // Co sekundę sprawdzaj sensory
+const uint32_t ACTION_MESSAGE_DURATION = 2000;  // Komunikaty przez 2 sekundy
+
+// ============================================
+// FUNKCJA: Aktualizacja jasności ekranu
+// ============================================
+void updateBrightness() {
+  if (auto_brightness) {
+    if (light_level > 200) {
+      // Jasno - pełna jasność
+      k10.rgb->brightness(100);
+    } else {
+      // Ciemno - 25% jasności
+      k10.rgb->brightness(25);
+    }
+  } else {
+    // Ręczna jasność
+    k10.rgb->brightness(screen_brightness);
+  }
+}
+
 // ============================================
 // FUNKCJA: Rysowanie konika
 // ============================================
 void drawHorse() {
-  // Wyczyść obszar konika
-  k10.canvas->canvasRectangle(60, 80, 120, 100, 0xFFFFFF, 0xFFFFFF, true);
-
   // Rysuj konika w zależności od nastroju
   uint32_t color = 0x8B4513; // Brązowy
 
   if (is_sleeping) {
     // Konik śpiący (leży)
-    k10.canvas->canvasText("  Z z z", 100, 70, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
+    k10.canvas->canvasText("  Z z z", 100, 70, 0xCCCCCC, k10.canvas->eCNAndENFont16, 50, 0);
     // Ciało
     k10.canvas->canvasRectangle(80, 140, 80, 30, color, color, true);
     // Głowa
@@ -143,146 +171,216 @@ void drawHorse() {
 // FUNKCJA: Rysowanie pasków statusu
 // ============================================
 void drawStats() {
-  int y_offset = 20;
-  int bar_height = 12;
-  int bar_width = 200;
-
-  // Wyczyść obszar statystyk
-  k10.canvas->canvasRectangle(10, 10, 220, 60, 0xFFFFFF, 0xFFFFFF, true);
+  int y_offset = 10;
+  int bar_height = 10;
+  int bar_width = 150;
 
   // Głód
-  k10.canvas->canvasText("Glod:", 15, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-  k10.canvas->canvasRectangle(70, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
+  k10.canvas->canvasText("Glod:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
   uint32_t hunger_color = (hunger > 50) ? 0x00FF00 : (hunger > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(70, y_offset, (hunger * bar_width) / 100, bar_height, hunger_color, hunger_color, true);
+  k10.canvas->canvasRectangle(60, y_offset, (hunger * bar_width) / 100, bar_height, hunger_color, hunger_color, true);
 
   // Szczęście
-  y_offset += 15;
-  k10.canvas->canvasText("Radosc:", 15, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-  k10.canvas->canvasRectangle(70, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
+  y_offset += 12;
+  k10.canvas->canvasText("Radosc:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
   uint32_t happy_color = (happiness > 50) ? 0x00FF00 : (happiness > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(70, y_offset, (happiness * bar_width) / 100, bar_height, happy_color, happy_color, true);
+  k10.canvas->canvasRectangle(60, y_offset, (happiness * bar_width) / 100, bar_height, happy_color, happy_color, true);
 
   // Czystość
-  y_offset += 15;
-  k10.canvas->canvasText("Czystosc:", 15, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-  k10.canvas->canvasRectangle(70, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
+  y_offset += 12;
+  k10.canvas->canvasText("Czystosc:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
   uint32_t clean_color = (cleanliness > 50) ? 0x00FF00 : (cleanliness > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(70, y_offset, (cleanliness * bar_width) / 100, bar_height, clean_color, clean_color, true);
+  k10.canvas->canvasRectangle(60, y_offset, (cleanliness * bar_width) / 100, bar_height, clean_color, clean_color, true);
 
   // Energia
-  y_offset += 15;
-  k10.canvas->canvasText("Energia:", 15, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-  k10.canvas->canvasRectangle(70, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
+  y_offset += 12;
+  k10.canvas->canvasText("Energia:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
   uint32_t energy_color = (energy > 50) ? 0x00FF00 : (energy > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(70, y_offset, (energy * bar_width) / 100, bar_height, energy_color, energy_color, true);
+  k10.canvas->canvasRectangle(60, y_offset, (energy * bar_width) / 100, bar_height, energy_color, energy_color, true);
+
+  // Licznik kroków
+  y_offset += 15;
+  String steps = "Kroki: " + String(step_count);
+  k10.canvas->canvasText(steps.c_str(), 10, y_offset, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
 }
 
 // ============================================
 // FUNKCJA: Rysowanie menu
 // ============================================
 void drawMenu() {
-  // Tło menu (półprzezroczyste)
-  k10.canvas->canvasRectangle(40, 200, 160, 110, 0xEEEEEE, 0x000000, true);
+  // Tło menu
+  k10.canvas->canvasRectangle(30, 100, 180, 140, 0xEEEEEE, 0x000000, true);
 
-  k10.canvas->canvasText("=== MENU ===", 75, 210, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("=== MENU ===", 70, 110, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
 
   // Opcje menu z podświetleniem
+  int y = 135;
+
+  // Nakarm
   if (menu_selection == 0) {
-    k10.canvas->canvasRectangle(50, 235, 140, 20, 0xFFFF00, 0xFFFF00, true);
+    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
   }
-  k10.canvas->canvasText("0. Nakarm", 60, 240, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("0. Nakarm", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 25;
 
+  // Statystyki
   if (menu_selection == 1) {
-    k10.canvas->canvasRectangle(50, 260, 140, 20, 0xFFFF00, 0xFFFF00, true);
+    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
   }
-  k10.canvas->canvasText("1. Statystyki", 60, 265, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("1. Statystyki", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 25;
 
+  // Ustawienia
   if (menu_selection == 2) {
-    k10.canvas->canvasRectangle(50, 285, 140, 20, 0xFFFF00, 0xFFFF00, true);
+    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
   }
-  k10.canvas->canvasText("2. Zamknij", 60, 290, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("2. Ustawienia", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 25;
+
+  // Zamknij
+  if (menu_selection == 3) {
+    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
+  }
+  k10.canvas->canvasText("3. Zamknij", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
 }
 
 // ============================================
-// FUNKCJA: Aktualizacja potrzeb (co ~30 sek)
+// FUNKCJA: Rysowanie ekranu głównego
+// ============================================
+void drawMainScreen() {
+  k10.canvas->canvasClear();
+
+  // Ustaw tło - granatowe jeśli śpi, białe jeśli nie
+  if (is_sleeping) {
+    k10.setScreenBackground(0x000033); // Granatowy
+  } else {
+    k10.setScreenBackground(0xFFFFFF); // Biały
+  }
+
+  drawStats();
+  drawHorse();
+
+  // Wyświetl komunikat akcji jeśli aktywny
+  if (action_message.length() > 0 && (millis() - last_action_time < ACTION_MESSAGE_DURATION)) {
+    k10.canvas->canvasRectangle(30, 200, 180, 25, 0xFFFFCC, 0x000000, true);
+    k10.canvas->canvasText(action_message.c_str(), 40, 210, 0xFF0000, k10.canvas->eCNAndENFont16, 50, 0);
+  }
+
+  // Wyświetl info o śnie
+  if (is_sleeping) {
+    k10.canvas->canvasText("Spi...", 10, 280, 0xCCCCFF, k10.canvas->eCNAndENFont16, 50, 0);
+  }
+
+  // Rysuj menu jeśli aktywne
+  if (menu_active) {
+    drawMenu();
+  }
+
+  k10.canvas->updateCanvas();
+}
+
+// ============================================
+// FUNKCJA: Aktualizacja potrzeb (co 10 minut)
 // ============================================
 void updateNeeds() {
-  if (millis() - last_update < 30000) return; // Co 30 sekund
+  if (millis() - last_update < NEEDS_UPDATE_INTERVAL) return;
   last_update = millis();
 
-  if (!is_sleeping) {
-    // Potrzeby spadają z czasem
-    if (hunger > 0) hunger--;
-    if (cleanliness > 0) cleanliness--;
-    if (energy > 2) energy -= 2;  // Energia spada szybciej
+  if (is_sleeping) {
+    // PODCZAS SNU - tylko regeneracja energii
+    if (energy < 100) {
+      energy += 10;
+      if (energy > 100) energy = 100;
+      needs_redraw = true;
+    }
+  } else {
+    // PODCZAS CZUWANIA - potrzeby spadają
+    if (hunger > 0) {
+      hunger -= 2;
+      needs_redraw = true;
+    }
+    if (cleanliness > 0) {
+      cleanliness -= 2;
+      needs_redraw = true;
+    }
+    if (energy > 0) {
+      energy -= 3;
+      needs_redraw = true;
+    }
 
     // Szczęście zależy od innych potrzeb
     if (hunger < 30 || cleanliness < 30 || energy < 30) {
-      if (happiness > 0) happiness--;
+      if (happiness > 0) {
+        happiness -= 2;
+        needs_redraw = true;
+      }
     }
-  } else {
-    // Podczas snu regeneracja energii
-    if (energy < 100) energy += 5;
-    if (energy > 100) energy = 100;
   }
-
-  // Ogranicz wartości
-  if (hunger > 100) hunger = 100;
-  if (happiness > 100) happiness = 100;
-  if (cleanliness > 100) cleanliness = 100;
-  if (energy > 100) energy = 100;
 }
 
 // ============================================
 // FUNKCJA: Sprawdzanie sensorów
 // ============================================
 void checkSensors() {
+  if (millis() - last_sensor_check < SENSOR_CHECK_INTERVAL) return;
+  last_sensor_check = millis();
+
   // Czytaj czujniki
   light_level = k10.readALS();
   temperature = aht20.getData(AHT20::eAHT20TempC);
   humidity = aht20.getData(AHT20::eAHT20HumiRH);
 
-  // Czytaj akcelerometr (zakładam że k10 ma metodę readAccel)
-  // accel_x = k10.readAccelX(); // Musisz sprawdzić dokładną nazwę metody
-  // accel_y = k10.readAccelY();
-  // accel_z = k10.readAccelZ();
+  // Sprawdź czy światło się zmieniło znacząco
+  if (abs(light_level - prev_light) > 50) {
+    prev_light = light_level;
+    updateBrightness();
+  }
 
-  // Oblicz siłę ruchu (magnitude)
-  // accel_magnitude = sqrt(accel_x*accel_x + accel_y*accel_y + accel_z*accel_z);
-
-  // TYMCZASOWO - symulacja ruchu dla testów
+  // SYMULACJA akcelerometru dla testów
   accel_magnitude = random(0, 30) / 10.0;
 
-  // Wykrywanie kroków (wzrosty przyspieszenia)
-  if (accel_magnitude > STEP_THRESHOLD && millis() - last_step > 500) {
+  // Wykrywanie kroków
+  if (accel_magnitude > STEP_THRESHOLD && millis() - last_step > 500 && !is_sleeping) {
     step_count++;
     last_step = millis();
 
     // Spacer zwiększa szczęście i zmniejsza energię
-    if (happiness < 100) happiness += 2;
-    if (energy > 5) energy -= 1;
+    if (happiness < 100) happiness += 1;
+    if (energy > 0) energy -= 1;
 
-    // Wyświetl komunikat
-    k10.canvas->canvasText("Spacer!", 10, 200, 0x00FF00, k10.canvas->eCNAndENFont16, 50, 0);
+    action_message = "Spacer!";
+    last_action_time = millis();
+    needs_redraw = true;
   }
 
   // Wykrywanie mycia (potrząsanie)
-  if (accel_magnitude > SHAKE_THRESHOLD) {
-    if (cleanliness < 100) cleanliness += 3;
-    if (cleanliness > 100) cleanliness = 100;
+  if (accel_magnitude > SHAKE_THRESHOLD && !is_sleeping) {
+    if (cleanliness < 100) {
+      cleanliness += 5;
+      if (cleanliness > 100) cleanliness = 100;
 
-    k10.canvas->canvasText("Mycie!", 10, 200, 0x00FFFF, k10.canvas->eCNAndENFont16, 50, 0);
+      action_message = "Mycie!";
+      last_action_time = millis();
+      needs_redraw = true;
+    }
   }
 
-  // Wykrywanie głaskania (delikatny ruch)
-  if (accel_magnitude > PET_THRESHOLD && accel_magnitude < STEP_THRESHOLD) {
-    if (happiness < 100) happiness++;
+  // Wykrywanie głaskania
+  if (accel_magnitude > PET_THRESHOLD && accel_magnitude < STEP_THRESHOLD && !is_sleeping) {
+    if (happiness < 100) {
+      happiness++;
 
-    k10.canvas->canvasText("Glaskanie!", 10, 200, 0xFF69B4, k10.canvas->eCNAndENFont16, 50, 0);
+      action_message = "Glaskanie!";
+      last_action_time = millis();
+      needs_redraw = true;
+    }
   }
 
-  // Sprawdź sen (ciemność)
+  // Sprawdź sen
   checkSleep();
 }
 
@@ -290,12 +388,19 @@ void checkSensors() {
 // FUNKCJA: Sprawdzanie snu
 // ============================================
 void checkSleep() {
+  prev_sleeping = is_sleeping;
+
   // Jeśli ciemno (< 50 lux) i energia niska, konik zasypia
-  if (light_level < 50 && energy < 40) {
+  if (light_level < 50 && energy < 50) {
     is_sleeping = true;
-  } else if (light_level > 100) {
-    // Jeśli jasno, budzi się
+  } else if (light_level > 150 || energy > 90) {
+    // Jeśli jasno lub energia wysoka, budzi się
     is_sleeping = false;
+  }
+
+  // Sprawdź czy stan się zmienił
+  if (prev_sleeping != is_sleeping) {
+    needs_redraw = true;
   }
 }
 
@@ -303,6 +408,8 @@ void checkSleep() {
 // FUNKCJA: Aktualizacja nastroju
 // ============================================
 void updateMood() {
+  prev_mood = mood;
+
   // Oblicz średnią wszystkich potrzeb
   int avg = (hunger + happiness + cleanliness + energy) / 4;
 
@@ -316,21 +423,28 @@ void updateMood() {
     mood = 0; // Smutny
     k10.rgb->write(0, 0xFF0000); // Czerwony
   }
+
+  // Sprawdź czy nastrój się zmienił
+  if (prev_mood != mood) {
+    needs_redraw = true;
+  }
 }
 
 // ============================================
 // FUNKCJA: Karmienie
 // ============================================
 void feedHorse() {
-  if (hunger < 90) {
-    hunger += 20;
+  if (hunger < 80) {
+    hunger += 30;
     if (hunger > 100) hunger = 100;
 
-    k10.canvas->canvasText("Mniam mniam!", 70, 195, 0xFF6600, k10.canvas->eCNAndENFont16, 50, 0);
-    delay(1000);
+    action_message = "Mniam mniam!";
+    last_action_time = millis();
+    needs_redraw = true;
   } else {
-    k10.canvas->canvasText("Jestem najedzony!", 50, 195, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
-    delay(1000);
+    action_message = "Najedzony!";
+    last_action_time = millis();
+    needs_redraw = true;
   }
 }
 
@@ -342,10 +456,12 @@ void onButtonAPressed() {
     // Otwórz menu
     menu_active = true;
     menu_selection = 0;
+    needs_redraw = true;
   } else {
     // Nawigacja w menu
     menu_selection++;
-    if (menu_selection > 2) menu_selection = 0;
+    if (menu_selection > 3) menu_selection = 0;
+    needs_redraw = true;
   }
 }
 
@@ -359,26 +475,65 @@ void onButtonBPressed() {
       // Nakarm
       menu_active = false;
       feedHorse();
+
     } else if (menu_selection == 1) {
-      // Pokaż statystyki
+      // Statystyki
       menu_active = false;
       k10.canvas->canvasClear();
-      k10.canvas->canvasText("=== STATYSTYKI ===", 40, 100, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
+      k10.setScreenBackground(0xFFFFFF);
+
+      k10.canvas->canvasText("=== STATYSTYKI ===", 40, 80, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
 
       String steps = "Kroki: " + String(step_count);
-      k10.canvas->canvasText(steps.c_str(), 60, 130, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+      k10.canvas->canvasText(steps.c_str(), 50, 110, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
 
       String light = "Swiatlo: " + String((int)light_level) + " lux";
-      k10.canvas->canvasText(light.c_str(), 60, 150, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+      k10.canvas->canvasText(light.c_str(), 50, 130, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
 
       String temp = "Temp: " + String((int)temperature) + " C";
-      k10.canvas->canvasText(temp.c_str(), 60, 170, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+      k10.canvas->canvasText(temp.c_str(), 50, 150, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+
+      String hum = "Wilgotnosc: " + String((int)humidity) + " %";
+      k10.canvas->canvasText(hum.c_str(), 50, 170, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+
+      k10.canvas->canvasText("Nacisnij A aby wrocic", 30, 250, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
 
       k10.canvas->updateCanvas();
-      delay(3000);
+      delay(5000);
+      needs_redraw = true;
+
     } else if (menu_selection == 2) {
+      // Ustawienia
+      menu_active = false;
+      k10.canvas->canvasClear();
+      k10.setScreenBackground(0xFFFFFF);
+
+      k10.canvas->canvasText("=== USTAWIENIA ===", 40, 80, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
+
+      String brightness_text = auto_brightness ? "Auto-jasnosc: ON" : "Auto-jasnosc: OFF";
+      k10.canvas->canvasText(brightness_text.c_str(), 30, 120, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+
+      k10.canvas->canvasText("A - Przełącz auto", 30, 180, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
+      k10.canvas->canvasText("B - Wyjdź", 30, 200, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
+
+      k10.canvas->updateCanvas();
+
+      // Poczekaj na wybór
+      bool in_settings = true;
+      while (in_settings) {
+        delay(100);
+        // Tutaj możesz dodać logikę zmiany ustawień przez przyciski
+        // Na razie po prostu wyjdź po 3 sekundach
+        delay(3000);
+        in_settings = false;
+      }
+
+      needs_redraw = true;
+
+    } else if (menu_selection == 3) {
       // Zamknij menu
       menu_active = false;
+      needs_redraw = true;
     }
   }
 }
@@ -397,50 +552,36 @@ void setup() {
   k10.buttonA->setPressedCallback(onButtonAPressed);
   k10.buttonB->setPressedCallback(onButtonBPressed);
 
-  // Inicjalizacja czujników
-  // aht20.begin(); // Jeśli potrzebne
-
   // Wyświetl ekran powitalny
   k10.canvas->canvasClear();
-  k10.canvas->canvasText("TAMAGOTCHI KONIK", 35, 140, 0x8B4513, k10.canvas->eCNAndENFont16, 50, 0);
-  k10.canvas->canvasText("Loading...", 80, 160, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("TAMAGOTCHI", 60, 130, 0x8B4513, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("KONIK", 90, 150, 0x8B4513, k10.canvas->eCNAndENFont16, 50, 0);
   k10.canvas->updateCanvas();
   delay(2000);
 
   last_update = millis();
+  last_sensor_check = millis();
+  needs_redraw = true;
 }
 
 // ============================================
 // LOOP
 // ============================================
 void loop() {
-  // Aktualizuj potrzeby
+  // Aktualizuj potrzeby (co 10 minut)
   updateNeeds();
 
-  // Sprawdź sensory
+  // Sprawdź sensory (co sekundę)
   checkSensors();
 
   // Aktualizuj nastrój
   updateMood();
 
-  // Rysuj ekran
-  k10.canvas->canvasClear();
-  k10.setScreenBackground(0xFFFFFF);
-
-  drawStats();
-  drawHorse();
-
-  // Wyświetl info o śnie
-  if (is_sleeping) {
-    k10.canvas->canvasText("Spi...", 100, 195, 0x6666FF, k10.canvas->eCNAndENFont16, 50, 0);
+  // Rysuj ekran TYLKO gdy coś się zmieniło
+  if (needs_redraw) {
+    drawMainScreen();
+    needs_redraw = false;
   }
 
-  // Rysuj menu jeśli aktywne
-  if (menu_active) {
-    drawMenu();
-  }
-
-  k10.canvas->updateCanvas();
-
-  delay(100); // Odśwież ~10 razy/s
+  delay(100); // Krótkie opóźnienie dla stabilności
 }
