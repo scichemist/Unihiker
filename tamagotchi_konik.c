@@ -460,6 +460,7 @@ void updateMood() {
 // ============================================
 void feedHorse() {
   if (hunger < 100) {
+    music.playMusic(POWER_UP); // Dźwięk karmienia (nie blokuje!)
     hunger += 30;
     if (hunger > 100) hunger = 100;
 
