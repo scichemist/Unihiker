@@ -63,15 +63,15 @@ String action_message = ""; // Komunikat akcji
 uint8_t screen_brightness = 100; // Jasność ekranu (0-100)
 bool auto_brightness = true;     // Auto-jasność włączona
 
-// Progi akcelerometru
-const float STEP_THRESHOLD = 1.5;      // Próg wykrycia kroku
-const float SHAKE_THRESHOLD = 2.5;     // Próg wykrycia mycia/potrząsania
-const float PET_THRESHOLD = 0.3;       // Próg wykrycia głaskania
+// Progi akcelerometru - ZWIĘKSZONE dla mniejszej czułości
+const float STEP_THRESHOLD = 3.0;      // Próg wykrycia kroku (było 1.5)
+const float SHAKE_THRESHOLD = 4.5;     // Próg wykrycia mycia/potrząsania (było 2.5)
+const float PET_THRESHOLD = 1.0;       // Próg wykrycia głaskania (było 0.3)
 
 // Czasy aktualizacji (w milisekundach)
 const uint32_t NEEDS_UPDATE_INTERVAL = 600000;  // 10 minut = 600000 ms
 const uint32_t SENSOR_CHECK_INTERVAL = 1000;    // Co sekundę sprawdzaj sensory
-const uint32_t ACTION_MESSAGE_DURATION = 2000;  // Komunikaty przez 2 sekundy
+const uint32_t ACTION_MESSAGE_DURATION = 150;   // Komunikaty przez 150ms (było 2000)
 
 // ============================================
 // FUNKCJA: Aktualizacja jasności ekranu
@@ -81,9 +81,12 @@ void updateBrightness() {
     if (light_level > 200) {
       // Jasno - pełna jasność
       k10.rgb->brightness(100);
+    } else if (light_level > 50) {
+      // Średnio - 50% jasności
+      k10.rgb->brightness(50);
     } else {
-      // Ciemno - 25% jasności
-      k10.rgb->brightness(25);
+      // Ciemno - minimum 15% żeby nie zgasło całkowicie
+      k10.rgb->brightness(15);
     }
   } else {
     // Ręczna jasność
@@ -212,40 +215,54 @@ void drawStats() {
 // FUNKCJA: Rysowanie menu
 // ============================================
 void drawMenu() {
-  // Tło menu
-  k10.canvas->canvasRectangle(30, 100, 180, 140, 0xEEEEEE, 0x000000, true);
+  // Tło menu - JASNE (białe) z ciemną ramką
+  k10.canvas->canvasRectangle(20, 80, 200, 180, 0xFFFFFF, 0x000000, true);
 
-  k10.canvas->canvasText("=== MENU ===", 70, 110, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("=== MENU ===", 70, 95, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
 
   // Opcje menu z podświetleniem
-  int y = 135;
+  int y = 120;
 
   // Nakarm
   if (menu_selection == 0) {
-    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
   }
-  k10.canvas->canvasText("0. Nakarm", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-  y += 25;
+  k10.canvas->canvasText("0. Nakarm", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 22;
+
+  // Spacer
+  if (menu_selection == 1) {
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+  }
+  k10.canvas->canvasText("1. Spacer", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 22;
+
+  // Głaskaj
+  if (menu_selection == 2) {
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+  }
+  k10.canvas->canvasText("2. Glaskaj", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 22;
+
+  // Myj
+  if (menu_selection == 3) {
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+  }
+  k10.canvas->canvasText("3. Myj", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 22;
 
   // Statystyki
-  if (menu_selection == 1) {
-    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
+  if (menu_selection == 4) {
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
   }
-  k10.canvas->canvasText("1. Statystyki", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-  y += 25;
-
-  // Ustawienia
-  if (menu_selection == 2) {
-    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
-  }
-  k10.canvas->canvasText("2. Ustawienia", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-  y += 25;
+  k10.canvas->canvasText("4. Statystyki", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 22;
 
   // Zamknij
-  if (menu_selection == 3) {
-    k10.canvas->canvasRectangle(40, y - 5, 160, 20, 0xFFFF00, 0xFFFF00, true);
+  if (menu_selection == 5) {
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
   }
-  k10.canvas->canvasText("3. Zamknij", 50, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("5. Zamknij", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
 }
 
 // ============================================
@@ -298,24 +315,24 @@ void updateNeeds() {
       needs_redraw = true;
     }
   } else {
-    // PODCZAS CZUWANIA - potrzeby spadają
+    // PODCZAS CZUWANIA - potrzeby spadają WOLNIEJ
     if (hunger > 0) {
-      hunger -= 2;
+      hunger -= 1;  // Zmniejszono z 2
       needs_redraw = true;
     }
     if (cleanliness > 0) {
-      cleanliness -= 2;
+      cleanliness -= 1;  // Zmniejszono z 2
       needs_redraw = true;
     }
     if (energy > 0) {
-      energy -= 3;
+      energy -= 1;  // Zmniejszono z 3 do 1
       needs_redraw = true;
     }
 
     // Szczęście zależy od innych potrzeb
     if (hunger < 30 || cleanliness < 30 || energy < 30) {
       if (happiness > 0) {
-        happiness -= 2;
+        happiness -= 1;  // Zmniejszono z 2
         needs_redraw = true;
       }
     }
@@ -340,45 +357,8 @@ void checkSensors() {
     updateBrightness();
   }
 
-  // SYMULACJA akcelerometru dla testów
-  accel_magnitude = random(0, 30) / 10.0;
-
-  // Wykrywanie kroków
-  if (accel_magnitude > STEP_THRESHOLD && millis() - last_step > 500 && !is_sleeping) {
-    step_count++;
-    last_step = millis();
-
-    // Spacer zwiększa szczęście i zmniejsza energię
-    if (happiness < 100) happiness += 1;
-    if (energy > 0) energy -= 1;
-
-    action_message = "Spacer!";
-    last_action_time = millis();
-    needs_redraw = true;
-  }
-
-  // Wykrywanie mycia (potrząsanie)
-  if (accel_magnitude > SHAKE_THRESHOLD && !is_sleeping) {
-    if (cleanliness < 100) {
-      cleanliness += 5;
-      if (cleanliness > 100) cleanliness = 100;
-
-      action_message = "Mycie!";
-      last_action_time = millis();
-      needs_redraw = true;
-    }
-  }
-
-  // Wykrywanie głaskania
-  if (accel_magnitude > PET_THRESHOLD && accel_magnitude < STEP_THRESHOLD && !is_sleeping) {
-    if (happiness < 100) {
-      happiness++;
-
-      action_message = "Glaskanie!";
-      last_action_time = millis();
-      needs_redraw = true;
-    }
-  }
+  // USUNIĘTO automatyczne wykrywanie ruchu - teraz tylko przez menu!
+  // Akcelerometr nie wpływa już automatycznie na grę
 
   // Sprawdź sen
   checkSleep();
@@ -460,7 +440,7 @@ void onButtonAPressed() {
   } else {
     // Nawigacja w menu
     menu_selection++;
-    if (menu_selection > 3) menu_selection = 0;
+    if (menu_selection > 5) menu_selection = 0;  // 6 opcji (0-5)
     needs_redraw = true;
   }
 }
@@ -477,6 +457,47 @@ void onButtonBPressed() {
       feedHorse();
 
     } else if (menu_selection == 1) {
+      // Spacer
+      menu_active = false;
+      if (!is_sleeping && energy > 5) {
+        step_count += 50;  // Dodaj kroki
+        if (happiness < 100) happiness += 10;
+        if (energy > 5) energy -= 5;
+
+        action_message = "Spacer! +50";
+        last_action_time = millis();
+        needs_redraw = true;
+      } else {
+        action_message = "Za zmeczony!";
+        last_action_time = millis();
+        needs_redraw = true;
+      }
+
+    } else if (menu_selection == 2) {
+      // Głaskaj
+      menu_active = false;
+      if (!is_sleeping) {
+        if (happiness < 100) happiness += 15;
+        if (happiness > 100) happiness = 100;
+
+        action_message = "Glaskanie <3";
+        last_action_time = millis();
+        needs_redraw = true;
+      }
+
+    } else if (menu_selection == 3) {
+      // Myj
+      menu_active = false;
+      if (!is_sleeping) {
+        if (cleanliness < 100) cleanliness += 20;
+        if (cleanliness > 100) cleanliness = 100;
+
+        action_message = "Mycie!";
+        last_action_time = millis();
+        needs_redraw = true;
+      }
+
+    } else if (menu_selection == 4) {
       // Statystyki
       menu_active = false;
       k10.canvas->canvasClear();
@@ -502,35 +523,7 @@ void onButtonBPressed() {
       delay(5000);
       needs_redraw = true;
 
-    } else if (menu_selection == 2) {
-      // Ustawienia
-      menu_active = false;
-      k10.canvas->canvasClear();
-      k10.setScreenBackground(0xFFFFFF);
-
-      k10.canvas->canvasText("=== USTAWIENIA ===", 40, 80, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
-
-      String brightness_text = auto_brightness ? "Auto-jasnosc: ON" : "Auto-jasnosc: OFF";
-      k10.canvas->canvasText(brightness_text.c_str(), 30, 120, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
-
-      k10.canvas->canvasText("A - Przełącz auto", 30, 180, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
-      k10.canvas->canvasText("B - Wyjdź", 30, 200, 0x666666, k10.canvas->eCNAndENFont16, 50, 0);
-
-      k10.canvas->updateCanvas();
-
-      // Poczekaj na wybór
-      bool in_settings = true;
-      while (in_settings) {
-        delay(100);
-        // Tutaj możesz dodać logikę zmiany ustawień przez przyciski
-        // Na razie po prostu wyjdź po 3 sekundach
-        delay(3000);
-        in_settings = false;
-      }
-
-      needs_redraw = true;
-
-    } else if (menu_selection == 3) {
+    } else if (menu_selection == 5) {
       // Zamknij menu
       menu_active = false;
       needs_redraw = true;
@@ -577,11 +570,15 @@ void loop() {
   // Aktualizuj nastrój
   updateMood();
 
-  // Rysuj ekran TYLKO gdy coś się zmieniło
-  if (needs_redraw) {
+  // Rysuj ekran TYLKO gdy coś się zmieniło I nie ma aktywnego menu
+  if (needs_redraw && !menu_active) {
+    drawMainScreen();
+    needs_redraw = false;
+  } else if (needs_redraw && menu_active) {
+    // Jeśli menu aktywne, narysuj tylko raz
     drawMainScreen();
     needs_redraw = false;
   }
 
-  delay(100); // Krótkie opóźnienie dla stabilności
+  delay(150); // Opóźnienie 150ms jak użytkownik chciał
 }
