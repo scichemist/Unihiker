@@ -2,6 +2,13 @@
 #include "AIRecognition.h"
 #include "asr.h"
 
+// Deklaracje obiektów
+UNIHIKER_K10    k10;
+AIRecognition   ai;
+Music           music;
+ASR             asr;
+AHT20           aht20;
+
 // Zmienne globalne
 bool menu_active = true;        // Czy jesteśmy w menu
 uint8_t menu_selection = 1;     // Wybrana opcja w menu (1-4)
