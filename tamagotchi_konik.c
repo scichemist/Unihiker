@@ -43,13 +43,18 @@ float prev_light = 0;       // Poprzednia wartość światła
 float temperature = 0;      // Temperatura
 float humidity = 0;         // Wilgotność
 float accel_magnitude = 0;  // Siła ruchu
+float accel_x = 0;          // Akcelerometr X
+float accel_y = 0;          // Akcelerometr Y
+float prev_accel_x = 0;     // Poprzednie odczyty
+float prev_accel_y = 0;
 
 // ============================================
 // ZMIENNE GRY
 // ============================================
 bool is_sleeping = false;   // Czy konik śpi
 bool prev_sleeping = false; // Poprzedni stan snu
-uint32_t step_count = 0;    // Licznik kroków
+uint32_t step_count = 0;    // Licznik kroków (ciągle zliczane)
+uint32_t displayed_step_count = 0; // Ostatnio wyświetlona liczba kroków
 uint32_t last_update = 0;   // Ostatnia aktualizacja potrzeb
 uint32_t last_step = 0;     // Ostatni krok
 uint32_t last_sensor_check = 0; // Ostatnie sprawdzenie sensorów
@@ -215,9 +220,9 @@ void drawStats() {
   int energy_bar = (energy_safe * bar_width) / 100;
   k10.canvas->canvasRectangle(60, y_offset, energy_bar, bar_height, energy_color, energy_color, true);
 
-  // Licznik kroków
+  // Licznik kroków (wyświetla ostatnio odświeżoną wartość)
   y_offset += 15;
-  String steps = "Kroki: " + String(step_count);
+  String steps = "Kroki: " + String(displayed_step_count);
   k10.canvas->canvasText(steps.c_str(), 10, y_offset, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
 }
 
@@ -225,8 +230,8 @@ void drawStats() {
 // FUNKCJA: Rysowanie menu
 // ============================================
 void drawMenu() {
-  // Tło menu - BIAŁY prostokąt z CZARNĄ ramką (filled=true)
-  k10.canvas->canvasRectangle(20, 80, 200, 180, 0x000000, 0xFFFFFF, true);
+  // Tło menu - BIAŁY prostokąt z CZARNĄ ramką (filled=true) - powiększone dla 7 opcji
+  k10.canvas->canvasRectangle(20, 80, 200, 202, 0x000000, 0xFFFFFF, true);
 
   // Tytuł - granatowy
   k10.canvas->canvasText("=== MENU ===", 70, 95, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
@@ -269,11 +274,18 @@ void drawMenu() {
   k10.canvas->canvasText("4. Statystyki", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
   y += 22;
 
-  // Zamknij
+  // Odśwież kroki
   if (menu_selection == 5) {
     k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
   }
-  k10.canvas->canvasText("5. Zamknij", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("5. Odswiez kroki", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
+  y += 22;
+
+  // Zamknij
+  if (menu_selection == 6) {
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
+  }
+  k10.canvas->canvasText("6. Zamknij", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
 }
 
 // ============================================
@@ -368,8 +380,30 @@ void checkSensors() {
     updateBrightness();
   }
 
-  // USUNIĘTO automatyczne wykrywanie ruchu - teraz tylko przez menu!
-  // Akcelerometr nie wpływa już automatycznie na grę
+  // Czytaj akcelerometr - liczenie kroków W TLE (nie wpływa na grę automatycznie!)
+  accel_x = k10.getAccelerometerX();
+  accel_y = k10.getAccelerometerY();
+
+  // Oblicz siłę ruchu (różnica od poprzedniego odczytu)
+  float delta_x = accel_x - prev_accel_x;
+  float delta_y = accel_y - prev_accel_y;
+  accel_magnitude = sqrt(delta_x * delta_x + delta_y * delta_y);
+
+  // Wykryj krok - tylko jeśli minęło 300ms od ostatniego kroku (anty-drganie)
+  if (accel_magnitude > STEP_THRESHOLD && (millis() - last_step > 300)) {
+    step_count++;
+    last_step = millis();
+
+    // Automatyczne odświeżenie wyświetlacza co 200 kroków
+    if (step_count - displayed_step_count >= 200) {
+      displayed_step_count = step_count;
+      needs_redraw = true;
+    }
+  }
+
+  // Zapisz poprzednie wartości
+  prev_accel_x = accel_x;
+  prev_accel_y = accel_y;
 
   // Sprawdź sen
   checkSleep();
@@ -425,7 +459,7 @@ void updateMood() {
 // FUNKCJA: Karmienie
 // ============================================
 void feedHorse() {
-  if (hunger < 80) {
+  if (hunger < 100) {
     hunger += 30;
     if (hunger > 100) hunger = 100;
 
@@ -451,7 +485,7 @@ void onButtonAPressed() {
   } else {
     // Nawigacja w menu
     menu_selection++;
-    if (menu_selection > 5) menu_selection = 0;  // 6 opcji (0-5)
+    if (menu_selection > 6) menu_selection = 0;  // 7 opcji (0-6)
     needs_redraw = true;
   }
 }
@@ -516,7 +550,7 @@ void onButtonBPressed() {
 
       k10.canvas->canvasText("=== STATYSTYKI ===", 40, 80, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
 
-      String steps = "Kroki: " + String(step_count);
+      String steps = "Kroki: " + String(displayed_step_count) + "/" + String(step_count);
       k10.canvas->canvasText(steps.c_str(), 50, 110, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
 
       String light = "Swiatlo: " + String((int)light_level) + " lux";
@@ -535,6 +569,15 @@ void onButtonBPressed() {
       needs_redraw = true;
 
     } else if (menu_selection == 5) {
+      // Odśwież kroki - synchronizuj wyświetlaną wartość z rzeczywistą
+      menu_active = false;
+      displayed_step_count = step_count;
+
+      action_message = "Kroki: " + String(displayed_step_count);
+      last_action_time = millis();
+      needs_redraw = true;
+
+    } else if (menu_selection == 6) {
       // Zamknij menu
       menu_active = false;
       needs_redraw = true;
