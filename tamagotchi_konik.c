@@ -16,17 +16,6 @@ void updateBrightness();
 void onButtonAPressed();
 void onButtonBPressed();
 
-// Funkcje dźwiękowe
-void playTone(int frequency, int duration);
-void soundFeed();
-void soundPet();
-void soundWalk();
-void soundWash();
-void soundSleep();
-void soundWakeUp();
-void soundButton();
-void soundWarning();
-
 // Deklaracje obiektów
 UNIHIKER_K10    k10;
 AIRecognition   ai;
@@ -436,11 +425,6 @@ void checkSleep() {
 
   // Sprawdź czy stan się zmienił
   if (prev_sleeping != is_sleeping) {
-    if (is_sleeping) {
-      soundSleep(); // Dźwięk zasypiania
-    } else {
-      soundWakeUp(); // Dźwięk budzenia
-    }
     needs_redraw = true;
   }
 }
@@ -467,10 +451,6 @@ void updateMood() {
 
   // Sprawdź czy nastrój się zmienił
   if (prev_mood != mood) {
-    // Ostrzeżenie gdy konik staje się smutny
-    if (mood == 0 && prev_mood > 0) {
-      soundWarning(); // Dźwięk ostrzeżenia - konik smutny!
-    }
     needs_redraw = true;
   }
 }
@@ -480,7 +460,6 @@ void updateMood() {
 // ============================================
 void feedHorse() {
   if (hunger < 100) {
-    soundFeed(); // Dźwięk karmienia
     hunger += 30;
     if (hunger > 100) hunger = 100;
 
@@ -488,7 +467,6 @@ void feedHorse() {
     last_action_time = millis();
     needs_redraw = true;
   } else {
-    soundWarning(); // Dźwięk ostrzeżenia - już najedzony
     action_message = "Najedzony!";
     last_action_time = millis();
     needs_redraw = true;
@@ -499,8 +477,6 @@ void feedHorse() {
 // CALLBACK: Przycisk A - Menu/Nawigacja
 // ============================================
 void onButtonAPressed() {
-  soundButton(); // Dźwięk przycisku
-
   if (!menu_active) {
     // Otwórz menu
     menu_active = true;
@@ -518,8 +494,6 @@ void onButtonAPressed() {
 // CALLBACK: Przycisk B - Akcja
 // ============================================
 void onButtonBPressed() {
-  soundButton(); // Dźwięk przycisku
-
   if (menu_active) {
     // Wykonaj akcję z menu
     if (menu_selection == 0) {
@@ -531,7 +505,6 @@ void onButtonBPressed() {
       // Spacer
       menu_active = false;
       if (!is_sleeping && energy > 5) {
-        soundWalk(); // Dźwięk spaceru
         step_count += 50;  // Dodaj kroki
         if (happiness < 100) happiness += 10;
         if (energy > 5) energy -= 5;
@@ -540,7 +513,6 @@ void onButtonBPressed() {
         last_action_time = millis();
         needs_redraw = true;
       } else {
-        soundWarning(); // Dźwięk ostrzeżenia
         action_message = "Za zmeczony!";
         last_action_time = millis();
         needs_redraw = true;
@@ -550,7 +522,6 @@ void onButtonBPressed() {
       // Głaskaj
       menu_active = false;
       if (!is_sleeping) {
-        soundPet(); // Dźwięk głaskania
         if (happiness < 100) happiness += 15;
         if (happiness > 100) happiness = 100;
 
@@ -563,7 +534,6 @@ void onButtonBPressed() {
       // Myj
       menu_active = false;
       if (!is_sleeping) {
-        soundWash(); // Dźwięk mycia
         if (cleanliness < 100) cleanliness += 20;
         if (cleanliness > 100) cleanliness = 100;
 
@@ -613,83 +583,6 @@ void onButtonBPressed() {
       needs_redraw = true;
     }
   }
-}
-
-// ============================================
-// FUNKCJE DŹWIĘKOWE - Proste melodie 8-bit
-// ============================================
-
-// Pin dla buzzera (I2S speaker na ESP32-S3)
-#define BUZZER_CHANNEL 0
-#define BUZZER_PIN 41  // GPIO41 - I2S speaker
-
-// Pomocnicza funkcja do odtwarzania tonu
-void playTone(int frequency, int duration) {
-  if (frequency > 0) {
-    ledcSetup(BUZZER_CHANNEL, frequency, 8);
-    ledcAttachPin(BUZZER_PIN, BUZZER_CHANNEL);
-    ledcWrite(BUZZER_CHANNEL, 128); // 50% duty cycle
-    delay(duration);
-    ledcWrite(BUZZER_CHANNEL, 0);
-  } else {
-    delay(duration);
-  }
-}
-
-// Dźwięk karmienia - wesołe wznoszące się tony
-void soundFeed() {
-  playTone(523, 80);  // C5
-  playTone(659, 80);  // E5
-  playTone(784, 120); // G5
-}
-
-// Dźwięk głaskania - delikatna melodyjka
-void soundPet() {
-  playTone(659, 100); // E5
-  playTone(784, 100); // G5
-  playTone(880, 150); // A5
-}
-
-// Dźwięk spaceru - energiczny rytm
-void soundWalk() {
-  playTone(523, 60);  // C5
-  playTone(0, 30);    // Pauza
-  playTone(523, 60);  // C5
-  playTone(659, 100); // E5
-}
-
-// Dźwięk mycia - opadające tony (woda)
-void soundWash() {
-  playTone(880, 80);  // A5
-  playTone(784, 80);  // G5
-  playTone(659, 80);  // E5
-  playTone(523, 120); // C5
-}
-
-// Dźwięk zasypiania - spokojna melodia
-void soundSleep() {
-  playTone(523, 150); // C5
-  playTone(392, 150); // G4
-  playTone(330, 200); // E4
-}
-
-// Dźwięk budzenia - wznoszące się tony
-void soundWakeUp() {
-  playTone(330, 100); // E4
-  playTone(392, 100); // G4
-  playTone(523, 150); // C5
-}
-
-// Dźwięk przycisku - krótkie bipnięcie
-void soundButton() {
-  playTone(880, 30);  // A5
-}
-
-// Dźwięk ostrzeżenia - niskie tony
-void soundWarning() {
-  playTone(262, 100); // C4
-  playTone(0, 50);
-  playTone(262, 100); // C4
 }
 
 // ============================================
