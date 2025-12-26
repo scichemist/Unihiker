@@ -1,0 +1,288 @@
+	
+packages	
+0	
+name	"UNIHIKER"
+maintainer	"DFRobot"
+websiteURL	"http://www.DFRobot.com/"
+email	""
+help	
+online	"https://www.unihiker.com/"
+platforms	
+0	
+category	"UNIHIKER"
+name	"UNIHIKER"
+url	"https://downloadcd.dfrobot.com.cn/UNIHIKER/unihiker_k10-0.0.3.zip"
+checksum	"SHA-256:869006CDD0F136E524FC0C918B60302DABC86139B331DB903860B42747DFA6E0"
+help	
+online	"https://www.unihiker.com.cn/"
+version	"0.0.3"
+architecture	"esp32"
+archiveFileName	"unihiker_k10-0.0.3.zip"
+boards	
+0	
+name	"unihiker k10"
+toolsDependencies	
+0	
+packager	"UNIHIKER"
+version	"4.6"
+name	"esptool_py"
+1	
+packager	"UNIHIKER"
+version	"esp-2021r2-patch5-8.4.0"
+name	"xtensa-esp32s3-elf-gcc"
+2	
+packager	"UNIHIKER"
+version	"0.2.3"
+name	"mkspiffs"
+3	
+packager	"UNIHIKER"
+version	"3.0.0-gnu12-dc7f933"
+name	"mklittlefs"
+size	"143815706"
+1	
+category	"UNIHIKER"
+name	"UNIHIKER"
+url	"https://downloadcd.dfrobot.com.cn/UNIHIKER/unihiker_k10-0.0.2.zip"
+checksum	"SHA-256:c94078107d11eafd9e42711eb34497451905081437605119dfa2f8faa28a9f60"
+help	
+online	"https://www.unihiker.com.cn/"
+version	"0.0.2"
+architecture	"esp32"
+archiveFileName	"unihiker_k10-0.0.2.zip"
+boards	
+0	
+name	"unihiker k10"
+toolsDependencies	
+0	
+packager	"UNIHIKER"
+version	"4.6"
+name	"esptool_py"
+1	
+packager	"UNIHIKER"
+version	"esp-2021r2-patch5-8.4.0"
+name	"xtensa-esp32s3-elf-gcc"
+2	
+packager	"UNIHIKER"
+version	"0.2.3"
+name	"mkspiffs"
+3	
+packager	"UNIHIKER"
+version	"3.0.0-gnu12-dc7f933"
+name	"mklittlefs"
+size	"140193531"
+2	
+category	"UNIHIKER"
+name	"UNIHIKER"
+url	"https://downloadcd.dfrobot.com.cn/UNIHIKER/unihiker_k10-0.0.1.zip"
+checksum	"SHA-256:abf967f2bf4d8f7b59ad144c47b1236168b4412d35180b506ac8734ca5a93470"
+help	
+online	"https://www.unihiker.com.cn/"
+version	"0.0.1"
+architecture	"esp32"
+archiveFileName	"unihiker_k10-0.0.1.zip"
+boards	
+0	
+name	"unihiker k10"
+toolsDependencies	
+0	
+packager	"UNIHIKER"
+version	"4.6"
+name	"esptool_py"
+1	
+packager	"UNIHIKER"
+version	"esp-2021r2-patch5-8.4.0"
+name	"xtensa-esp32s3-elf-gcc"
+2	
+packager	"UNIHIKER"
+version	"0.2.3"
+name	"mkspiffs"
+3	
+packager	"UNIHIKER"
+version	"3.0.0-gnu12-dc7f933"
+name	"mklittlefs"
+size	"140248067"
+tools	
+0	
+name	"esptool_py"
+version	"4.6"
+systems	
+0	
+host	"x86_64-pc-linux-gnu"
+url	"https://github.com/espressif/arduino-esp32/releases/download/2.0.9/esptool-v4.6-src.tar.gz"
+archiveFileName	"esptool-v4.6-src.tar.gz"
+checksum	"SHA-256:22f9bad0cd1cea14e554ac1f4a6d8f67415ff7029a66ce9130756276e7264e5a"
+size	"99141"
+1	
+host	"i686-pc-linux-gnu"
+url	"https://github.com/espressif/arduino-esp32/releases/download/2.0.9/esptool-v4.6-src.tar.gz"
+archiveFileName	"esptool-v4.6-src.tar.gz"
+checksum	"SHA-256:22f9bad0cd1cea14e554ac1f4a6d8f67415ff7029a66ce9130756276e7264e5a"
+size	"99141"
+2	
+host	"aarch64-linux-gnu"
+url	"https://github.com/espressif/arduino-esp32/releases/download/2.0.9/esptool-v4.6-src.tar.gz"
+archiveFileName	"esptool-v4.6-src.tar.gz"
+checksum	"SHA-256:22f9bad0cd1cea14e554ac1f4a6d8f67415ff7029a66ce9130756276e7264e5a"
+size	"99141"
+3	
+host	"arm-linux-gnueabihf"
+url	"https://github.com/espressif/arduino-esp32/releases/download/2.0.9/esptool-v4.6-src.tar.gz"
+archiveFileName	"esptool-v4.6-src.tar.gz"
+checksum	"SHA-256:22f9bad0cd1cea14e554ac1f4a6d8f67415ff7029a66ce9130756276e7264e5a"
+size	"99141"
+4	
+host	"x86_64-apple-darwin"
+url	"https://github.com/espressif/arduino-esp32/releases/download/2.0.9/esptool-v4.6-macos.tar.gz"
+archiveFileName	"esptool-v4.6-macos.tar.gz"
+checksum	"SHA-256:885ec69fcffdcb9e7c6eacd2589f13a45ce6bcb6742bea368ec3a73bcca6dd59"
+size	"5851297"
+5	
+host	"x86_64-mingw32"
+url	"https://downloadcd.dfrobot.com.cn/UNIHIKER/tools/esptool-v4.6-win64.zip"
+archiveFileName	"esptool-v4.6-win64.zip"
+checksum	"SHA-256:c7c68cd1aa520cbfce488ff6a77818ece272272eb012831b9d9ab1280a7c393f"
+size	"6638480"
+6	
+host	"i686-mingw32"
+url	"https://downloadcd.dfrobot.com.cn/UNIHIKER/tools/esptool-v4.6-win64.zip"
+archiveFileName	"esptool-v4.6-win64.zip"
+checksum	"SHA-256:c7c68cd1aa520cbfce488ff6a77818ece272272eb012831b9d9ab1280a7c393f"
+size	"6638480"
+1	
+name	"xtensa-esp32s3-elf-gcc"
+version	"esp-2021r2-patch5-8.4.0"
+systems	
+0	
+host	"x86_64-pc-linux-gnu"
+url	"https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-amd64.tar.gz"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-amd64.tar.gz"
+checksum	"SHA-256:8aa17a6adf01efa5b1628c8ac578063a44d26ae9581d39486b92223a41ef262f"
+size	"68099473"
+1	
+host	"aarch64-linux-gnu"
+url	"https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-arm64.tar.gz"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-arm64.tar.gz"
+checksum	"SHA-256:b218c11122e5565b6442376ebd21a652abdfcbf90981afa3e177ce978710225d"
+size	"64233211"
+2	
+host	"arm-linux-gnueabihf"
+url	"https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-armel.tar.gz"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-armel.tar.gz"
+checksum	"SHA-256:967477434ad5483718915936a77ce915a10c5972a6b3fd02688a5c4e14182bfb"
+size	"63530586"
+3	
+host	"i686-pc-linux-gnu"
+url	"https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-i686.tar.gz"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-linux-i686.tar.gz"
+checksum	"SHA-256:07671d01a63ebd389912787efb2b263677c7b351c07fe430ded733cdae95e81d"
+size	"70025439"
+4	
+host	"x86_64-apple-darwin"
+url	"https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-macos.tar.gz"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-macos.tar.gz"
+checksum	"SHA-256:99b6d44cea5aebbedc8b6965e7bf551aa4a40ed83ddbe1c0e9b7cb255564ded5"
+size	"75719772"
+5	
+host	"arm64-apple-darwin"
+url	"https://github.com/espressif/crosstool-NG/releases/download/esp-2021r2-patch5/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-macos-arm64.tar.gz"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-macos-arm64.tar.gz"
+checksum	"SHA-256:c64b05be25d26916c65dcfe11de9e60b96d58980b2df706d3074cb70b1ef6cb9"
+size	"66791095"
+6	
+host	"i686-mingw32"
+url	"https://downloadcd.dfrobot.com.cn/UNIHIKER/tools/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-win32.zip"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-win32.zip"
+checksum	"SHA-256:658d3036ffdf11ddad6f0a784c8829f6ffd4dbd7c252d7f61722256d0ad43975"
+size	"82665716"
+7	
+host	"x86_64-mingw32"
+url	"https://downloadcd.dfrobot.com.cn/UNIHIKER/tools/xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-win64.zip"
+archiveFileName	"xtensa-esp32s3-elf-gcc8_4_0-esp-2021r2-patch5-win64.zip"
+checksum	"SHA-256:9000be38d44bf79c39b93a2aeb99b42e956c593ccbc02fe31cb9c71ae1bbcb22"
+size	"86022563"
+2	
+version	"0.2.3"
+name	"mkspiffs"
+systems	
+0	
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/mkspiffs-0.2.3-arduino-esp32-win32.zip"
+checksum	"SHA-256:b647f2c2efe6949819c85ea9404271b55c7c9c25bcb98d3b98a1d0ba771adf56"
+host	"i686-mingw32"
+archiveFileName	"mkspiffs-0.2.3-arduino-esp32-win32.zip"
+size	"249809"
+1	
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/mkspiffs-0.2.3-arduino-esp32-osx.tar.gz"
+checksum	"SHA-256:9f43fc74a858cf564966b5035322c3e5e61c31a647c5a1d71b388ed6efc48423"
+host	"x86_64-apple-darwin"
+archiveFileName	"mkspiffs-0.2.3-arduino-esp32-osx.tar.gz"
+size	"130270"
+2	
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/mkspiffs-0.2.3-arduino-esp32-osx.tar.gz"
+checksum	"SHA-256:9f43fc74a858cf564966b5035322c3e5e61c31a647c5a1d71b388ed6efc48423"
+host	"i386-apple-darwin"
+archiveFileName	"mkspiffs-0.2.3-arduino-esp32-osx.tar.gz"
+size	"130270"
+3	
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/mkspiffs-0.2.3-arduino-esp32-linux64.tar.gz"
+checksum	"SHA-256:5e1a4ff41385e842f389f6b5254102a547e566a06b49babeffa93ef37115cb5d"
+host	"x86_64-pc-linux-gnu"
+archiveFileName	"mkspiffs-0.2.3-arduino-esp32-linux64.tar.gz"
+size	"50646"
+4	
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/mkspiffs-0.2.3-arduino-esp32-linux32.tar.gz"
+checksum	"SHA-256:464463a93e8833209cdc29ba65e1a12fec31718dc10075c195a2445b2c3f6cb0"
+host	"i686-pc-linux-gnu"
+archiveFileName	"mkspiffs-0.2.3-arduino-esp32-linux32.tar.gz"
+size	"48751"
+5	
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/mkspiffs-0.2.3-arduino-esp32-linux-armhf.tar.gz"
+checksum	"SHA-256:ade3dc00117912ac08a1bdbfbfe76b12d21a34bc5fa1de0cfc45fe7a8d0a0185"
+host	"arm-linux-gnueabihf"
+archiveFileName	"mkspiffs-0.2.3-arduino-esp32-linux-armhf.tar.gz"
+size	"40665"
+3	
+version	"3.0.0-gnu12-dc7f933"
+name	"mklittlefs"
+systems	
+0	
+host	"aarch64-linux-gnu"
+url	"https://github.com/earlephilhower/esp-quick-toolchain/releases/download/3.0.0-gnu12/aarch64-linux-gnu.mklittlefs-c41e51a.200706.tar.gz"
+archiveFileName	"aarch64-linux-gnu.mklittlefs-c41e51a.200706.tar.gz"
+checksum	"SHA-256:fc56e389383749e4cf4fab0fcf75cc0ebc41e59383caf6c2eff1c3d9794af200"
+size	"44651"
+1	
+host	"arm-linux-gnueabihf"
+url	"https://github.com/earlephilhower/esp-quick-toolchain/releases/download/3.0.0-gnu12/arm-linux-gnueabihf.mklittlefs-c41e51a.200706.tar.gz"
+archiveFileName	"arm-linux-gnueabihf.mklittlefs-c41e51a.200706.tar.gz"
+checksum	"SHA-256:52b642dd0545eb3bd8dfb75dde6601df21700e4867763fd2696274be279294c5"
+size	"37211"
+2	
+host	"i686-pc-linux-gnu"
+url	"https://github.com/earlephilhower/esp-quick-toolchain/releases/download/3.0.0-gnu12/i686-linux-gnu.mklittlefs-c41e51a.200706.tar.gz"
+archiveFileName	"i686-linux-gnu.mklittlefs-c41e51a.200706.tar.gz"
+checksum	"SHA-256:7886051d8ccc54aed0af2e7cdf6ff992bb51638df86f3b545955697720b6d062"
+size	"48033"
+3	
+host	"i686-mingw32"
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/i686-w64-mingw32.mklittlefs-c41e51a.200706.zip"
+archiveFileName	"i686-w64-mingw32.mklittlefs-c41e51a.200706.zip"
+checksum	"SHA-256:43740db30ce451454f2337331f10ab4ed41bd83dbf0fa0cb4387107388b59f42"
+size	"332655"
+4	
+host	"x86_64-apple-darwin"
+url	"https://github.com/earlephilhower/esp-quick-toolchain/releases/download/3.0.0-gnu12/x86_64-apple-darwin14.mklittlefs-c41e51a.200706.tar.gz"
+archiveFileName	"x86_64-apple-darwin14.mklittlefs-c41e51a.200706.tar.gz"
+checksum	"SHA-256:e3edd5e05b70db3c7df6b9d626558348ad04804022fe955c799aeb51808c7dc3"
+size	"362608"
+5	
+host	"x86_64-pc-linux-gnu"
+url	"https://github.com/earlephilhower/esp-quick-toolchain/releases/download/3.0.0-gnu12/x86_64-linux-gnu.mklittlefs-c41e51a.200706.tar.gz"
+archiveFileName	"x86_64-linux-gnu.mklittlefs-c41e51a.200706.tar.gz"
+checksum	"SHA-256:66e84dda0aad747517da3785125e05738a540948aab2b7eaa02855167a1eea53"
+size	"46778"
+6	
+host	"x86_64-mingw32"
+url	"https://downloadcd.dfrobot.com.cn/FireBeetle/tools/x86_64-w64-mingw32.mklittlefs-c41e51a.200706.zip"
+archiveFileName	"x86_64-w64-mingw32.mklittlefs-c41e51a.200706.zip"
+checksum	"SHA-256:2e319077491f8e832e96eb4f2f7a70dd919333cee4b388c394e0e848d031d542"
+size	"345132"
