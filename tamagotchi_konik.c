@@ -178,32 +178,42 @@ void drawStats() {
   int bar_height = 10;
   int bar_width = 150;
 
+  // Ogranicz wszystkie wartości do 100
+  uint8_t hunger_safe = (hunger > 100) ? 100 : hunger;
+  uint8_t happiness_safe = (happiness > 100) ? 100 : happiness;
+  uint8_t clean_safe = (cleanliness > 100) ? 100 : cleanliness;
+  uint8_t energy_safe = (energy > 100) ? 100 : energy;
+
   // Głód
   k10.canvas->canvasText("Glod:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
   k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
-  uint32_t hunger_color = (hunger > 50) ? 0x00FF00 : (hunger > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(60, y_offset, (hunger * bar_width) / 100, bar_height, hunger_color, hunger_color, true);
+  uint32_t hunger_color = (hunger_safe > 50) ? 0x00FF00 : (hunger_safe > 20) ? 0xFFFF00 : 0xFF0000;
+  int hunger_bar = (hunger_safe * bar_width) / 100;
+  k10.canvas->canvasRectangle(60, y_offset, hunger_bar, bar_height, hunger_color, hunger_color, true);
 
   // Szczęście
   y_offset += 12;
   k10.canvas->canvasText("Radosc:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
   k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
-  uint32_t happy_color = (happiness > 50) ? 0x00FF00 : (happiness > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(60, y_offset, (happiness * bar_width) / 100, bar_height, happy_color, happy_color, true);
+  uint32_t happy_color = (happiness_safe > 50) ? 0x00FF00 : (happiness_safe > 20) ? 0xFFFF00 : 0xFF0000;
+  int happy_bar = (happiness_safe * bar_width) / 100;
+  k10.canvas->canvasRectangle(60, y_offset, happy_bar, bar_height, happy_color, happy_color, true);
 
   // Czystość
   y_offset += 12;
   k10.canvas->canvasText("Czystosc:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
   k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
-  uint32_t clean_color = (cleanliness > 50) ? 0x00FF00 : (cleanliness > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(60, y_offset, (cleanliness * bar_width) / 100, bar_height, clean_color, clean_color, true);
+  uint32_t clean_color = (clean_safe > 50) ? 0x00FF00 : (clean_safe > 20) ? 0xFFFF00 : 0xFF0000;
+  int clean_bar = (clean_safe * bar_width) / 100;
+  k10.canvas->canvasRectangle(60, y_offset, clean_bar, bar_height, clean_color, clean_color, true);
 
   // Energia
   y_offset += 12;
   k10.canvas->canvasText("Energia:", 10, y_offset, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
   k10.canvas->canvasRectangle(60, y_offset, bar_width, bar_height, 0xCCCCCC, 0xCCCCCC, true);
-  uint32_t energy_color = (energy > 50) ? 0x00FF00 : (energy > 20) ? 0xFFFF00 : 0xFF0000;
-  k10.canvas->canvasRectangle(60, y_offset, (energy * bar_width) / 100, bar_height, energy_color, energy_color, true);
+  uint32_t energy_color = (energy_safe > 50) ? 0x00FF00 : (energy_safe > 20) ? 0xFFFF00 : 0xFF0000;
+  int energy_bar = (energy_safe * bar_width) / 100;
+  k10.canvas->canvasRectangle(60, y_offset, energy_bar, bar_height, energy_color, energy_color, true);
 
   // Licznik kroków
   y_offset += 15;
@@ -309,9 +319,9 @@ void updateNeeds() {
   last_update = millis();
 
   if (is_sleeping) {
-    // PODCZAS SNU - tylko regeneracja energii
+    // PODCZAS SNU - regeneracja energii +20 co 10 minut (szybciej!)
     if (energy < 100) {
-      energy += 10;
+      energy += 20;  // Zwiększono z 10 na 20 - pełna regeneracja w ~50 min
       if (energy > 100) energy = 100;
       needs_redraw = true;
     }
