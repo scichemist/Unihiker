@@ -215,54 +215,55 @@ void drawStats() {
 // FUNKCJA: Rysowanie menu
 // ============================================
 void drawMenu() {
-  // Tło menu - JASNE (białe) z ciemną ramką
-  k10.canvas->canvasRectangle(20, 80, 200, 180, 0xFFFFFF, 0x000000, true);
+  // Tło menu - BIAŁY prostokąt z CZARNĄ ramką (filled=true)
+  k10.canvas->canvasRectangle(20, 80, 200, 180, 0x000000, 0xFFFFFF, true);
 
-  k10.canvas->canvasText("=== MENU ===", 70, 95, 0x0000FF, k10.canvas->eCNAndENFont16, 50, 0);
+  // Tytuł - granatowy
+  k10.canvas->canvasText("=== MENU ===", 70, 95, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
 
-  // Opcje menu z podświetleniem
+  // Opcje menu z podświetleniem jako RAMKA (filled=false)
   int y = 120;
 
   // Nakarm
   if (menu_selection == 0) {
-    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
   }
-  k10.canvas->canvasText("0. Nakarm", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("0. Nakarm", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
   y += 22;
 
   // Spacer
   if (menu_selection == 1) {
-    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
   }
-  k10.canvas->canvasText("1. Spacer", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("1. Spacer", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
   y += 22;
 
   // Głaskaj
   if (menu_selection == 2) {
-    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
   }
-  k10.canvas->canvasText("2. Glaskaj", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("2. Glaskaj", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
   y += 22;
 
   // Myj
   if (menu_selection == 3) {
-    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
   }
-  k10.canvas->canvasText("3. Myj", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("3. Myj", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
   y += 22;
 
   // Statystyki
   if (menu_selection == 4) {
-    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
   }
-  k10.canvas->canvasText("4. Statystyki", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("4. Statystyki", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
   y += 22;
 
   // Zamknij
   if (menu_selection == 5) {
-    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFFCC00, 0xFFCC00, true);
+    k10.canvas->canvasRectangle(30, y - 3, 180, 18, 0xFF6600, 0xFFFFFF, false);
   }
-  k10.canvas->canvasText("5. Zamknij", 40, y, 0x000000, k10.canvas->eCNAndENFont16, 50, 0);
+  k10.canvas->canvasText("5. Zamknij", 40, y, 0x000080, k10.canvas->eCNAndENFont16, 50, 0);
 }
 
 // ============================================
@@ -271,11 +272,11 @@ void drawMenu() {
 void drawMainScreen() {
   k10.canvas->canvasClear();
 
-  // Ustaw tło - granatowe jeśli śpi, białe jeśli nie
-  if (is_sleeping) {
-    k10.setScreenBackground(0x000033); // Granatowy
+  // Ustaw tło - granatowe jeśli śpi, białe jeśli nie (ALE nie gdy menu aktywne!)
+  if (is_sleeping && !menu_active) {
+    k10.setScreenBackground(0x000033); // Granatowy podczas snu
   } else {
-    k10.setScreenBackground(0xFFFFFF); // Biały
+    k10.setScreenBackground(0xFFFFFF); // Biały normalnie i w menu
   }
 
   drawStats();
