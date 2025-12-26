@@ -2,6 +2,13 @@
 #include "AIRecognition.h"
 #include "asr.h"
 
+// Deklaracje funkcji
+void drawMenu();
+void onButtonAPressed();
+void onButtonBPressed();
+void enterSelectedMode();
+void DF_mode_switch();
+
 // Deklaracje obiektów
 UNIHIKER_K10    k10;
 AIRecognition   ai;
@@ -21,13 +28,6 @@ uint8_t asr_cmd6 = 0;
 float Sensor_lux = 0;
 float Sensor_temp = 0;
 float Sensor_humi = 0;
-
-// Deklaracje funkcji
-void drawMenu();
-void onButtonAPressed();
-void onButtonBPressed();
-void enterSelectedMode();
-void DF_mode_switch();
 
 // Funkcja rysująca menu z podświetleniem wybranej opcji
 void drawMenu() {
