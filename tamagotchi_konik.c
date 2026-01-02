@@ -103,76 +103,27 @@ void updateBrightness() {
 // FUNKCJA: Rysowanie konika
 // ============================================
 void drawHorse() {
-  // Rysuj konika w zależności od nastroju
-  uint32_t color = 0x8B4513; // Brązowy
+  // Wyświetl grafikę konika z karty SD w zależności od stanu
+  int x = 70;  // Pozycja X (wycentrowane dla 100x100)
+  int y = 80;  // Pozycja Y
 
   if (is_sleeping) {
-    // Konik śpiący (leży)
-    k10.canvas->canvasText("  Z z z", 100, 70, 0xCCCCCC, k10.canvas->eCNAndENFont16, 50, 0);
-    // Ciało
-    k10.canvas->canvasRectangle(80, 140, 80, 30, color, color, true);
-    // Głowa
-    k10.canvas->canvasCircle(75, 145, 15, color, color, true);
-    // Oczy zamknięte
-    k10.canvas->canvasLine(70, 145, 75, 145, 0x000000);
+    // Konik śpiący - załaduj grafikę ze snu
+    k10.canvas->canvasDrawImage(x, y, "S:/horse_sleep.bmp");
+    k10.canvas->canvasText("Z z z", x+30, y-15, 0x888888, k10.canvas->eCNAndENFont16, 50, 0);
 
   } else if (mood == 2) {
-    // Konik szczęśliwy (skacze)
-    // Ciało
-    k10.canvas->canvasRectangle(90, 120, 60, 40, color, color, true);
-    // Głowa
-    k10.canvas->canvasCircle(85, 125, 20, color, color, true);
-    // Oczy
-    k10.canvas->canvasCircle(80, 120, 3, 0x000000, 0x000000, true);
-    k10.canvas->canvasCircle(90, 120, 3, 0x000000, 0x000000, true);
-    // Uśmiech
-    k10.canvas->canvasLine(75, 130, 85, 135, 0xFF0000);
-    k10.canvas->canvasLine(85, 135, 95, 130, 0xFF0000);
-    // Nogi (w ruchu)
-    k10.canvas->canvasLine(100, 160, 95, 175, color);
-    k10.canvas->canvasLine(120, 160, 125, 175, color);
-    k10.canvas->canvasLine(130, 160, 125, 175, color);
-    k10.canvas->canvasLine(140, 160, 145, 175, color);
+    // Konik szczęśliwy - wesoła grafika
+    k10.canvas->canvasDrawImage(x, y, "S:/horse_happy.bmp");
 
   } else if (mood == 0) {
-    // Konik smutny
-    // Ciało
-    k10.canvas->canvasRectangle(90, 130, 60, 40, color, color, true);
-    // Głowa opuszczona
-    k10.canvas->canvasCircle(85, 145, 20, color, color, true);
-    // Oczy
-    k10.canvas->canvasCircle(80, 140, 3, 0x000000, 0x000000, true);
-    k10.canvas->canvasCircle(90, 140, 3, 0x000000, 0x000000, true);
-    // Smutek
-    k10.canvas->canvasLine(75, 150, 85, 145, 0x0000FF);
-    k10.canvas->canvasLine(85, 145, 95, 150, 0x0000FF);
-    // Nogi
-    k10.canvas->canvasLine(100, 170, 100, 185, color);
-    k10.canvas->canvasLine(120, 170, 120, 185, color);
-    k10.canvas->canvasLine(130, 170, 130, 185, color);
-    k10.canvas->canvasLine(140, 170, 140, 185, color);
+    // Konik smutny - smutna grafika
+    k10.canvas->canvasDrawImage(x, y, "S:/horse_sad.bmp");
 
   } else {
-    // Konik normalny
-    // Ciało
-    k10.canvas->canvasRectangle(90, 130, 60, 40, color, color, true);
-    // Głowa
-    k10.canvas->canvasCircle(85, 135, 20, color, color, true);
-    // Oczy
-    k10.canvas->canvasCircle(80, 130, 3, 0x000000, 0x000000, true);
-    k10.canvas->canvasCircle(90, 130, 3, 0x000000, 0x000000, true);
-    // Pysk
-    k10.canvas->canvasLine(75, 140, 95, 140, 0x000000);
-    // Nogi
-    k10.canvas->canvasLine(100, 170, 100, 185, color);
-    k10.canvas->canvasLine(120, 170, 120, 185, color);
-    k10.canvas->canvasLine(130, 170, 130, 185, color);
-    k10.canvas->canvasLine(140, 170, 140, 185, color);
+    // Konik normalny - neutralna grafika
+    k10.canvas->canvasDrawImage(x, y, "S:/horse_normal.bmp");
   }
-
-  // Ogon
-  k10.canvas->canvasLine(150, 140, 170, 130, color);
-  k10.canvas->canvasLine(150, 145, 170, 135, color);
 }
 
 // ============================================
@@ -595,6 +546,9 @@ void setup() {
   k10.creatCanvas();
   k10.setScreenBackground(0xFFFFFF);
   k10.rgb->brightness(5);
+
+  // Inicjalizacja karty SD dla grafiki
+  k10.initSDFile();
 
   // Przypisz przyciski
   k10.buttonA->setPressedCallback(onButtonAPressed);
